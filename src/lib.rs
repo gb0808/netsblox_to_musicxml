@@ -12,6 +12,8 @@ use std::time::Duration;
 use std::sync::Arc;
 use std::rc::Rc;
 
+mod note;
+
 // -----------------------------------------------------------------
 
 const BASE_URL: &'static str = "https://cloud.netsblox.org";
@@ -104,7 +106,11 @@ pub fn netsblox_to_musicxml(xml: &str) -> String {
             Request::UnknownBlock { name, args } => {
                 match name.as_str() {
                     "playNote" => {
-                        println!("note played");
+                        assert_eq!(args.len(), 3);
+                        let pitch = args[2].to_string();
+                        let duration = format!("{}{}", args[1], args[0]);
+                        let note = note::note_builder(pitch, duration);
+                        println!("{}", note::to_string(&note));
                         key.complete(Ok(SimpleValue::String("OK".into()).into()));
                     }
                     _ => return RequestStatus::UseDefault { key, request },
